@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<title>horizontal.js</title>
+<script src="./horizontal.js" type="text/javascript" charset="utf-8"></script>
+<style type="text/css" media="screen">
+body {
+    text-align: center;
+    font-size: 21px;
+}
+
+h3, p {
+    text-align: left;
+    display: block;
+    width: 70%;
+    margin: 1em auto;
+}
+
+pre {
+    margin: 0;
+}
+
+ul {
+    text-align: left;
+    width: 70%;
+    margin: 1em auto;
+}
+
+.sample {
+    text-align: left;
+    margin: 1em auto;
+    width: 70%;
+    font-size: 24px;
+}
+
+.sample code {
+    padding: 0.6em;
+    display: block;
+    background-color: #fee;
+}
+
+.sample .result {
+    padding: 0.6em;
+    background-color: #222;
+    color: #fee;
+}
+
+
+</style>
+
+<h1>horizontal.js</h1>
+<h2>Lazy enumerator chains for JS</h2>
+<p>v 0.0.1</p>
+
+<ul>
+    <li>Inspired by underscore.js, Python's iterators and Haskell's list
+        functions
+    <li>Supports inifinite lists
+    <li>Underscore compatibility (eventually..)
+    <li>License is MIT
+    <li>Theese examples are running live
+</ul>
+
+<p>
+    <a href="https://github.com/pstiasny/horizontal.js">Get it on Github</a>
+</p>
+
+<h3>Examples</h3>
+    <div class="sample runnable">
+<code><pre>var x = [];
+_h(['foo', 'bar', 'baz'])
+  .each(function(el) { x.unshift(el); });
+x</pre></code>
+    </div>
+
+    <div class="sample runnable">
+<code><pre>_h.range(1,30)
+  .filter(function(el) { return (el % 5) === 0; })
+  .toArray()</pre></code>
+    </div>
+
+    <div class="sample runnable">
+<code><pre>_h.range(6)
+  .map(function(el) { return el * el; })
+  .reduce(function(acc, el) { return el + acc; }, 0)</pre></code>
+    </div>
+
+    <div class="sample runnable">
+<code><pre>_h.repeat([1, 2, 3]).take(10).toArray()</pre></code>
+    </div>
+
+<h3>Enumerators</h3>
+<p>
+    An enumerator is an object having <code>next</code> and <code>hasMore</code>
+    methods.  You can define your own:
+</p>
+    <div class="sample runnable">
+<code><pre>// An enumerator producing an infinite list of random floats
+_h({
+  next: function() { return Math.random(); },
+  hasMore: function() { return true; }
+}).take(3).toArray()</pre></code>
+    </div>
+<p>
+    Horizontal provides a few default enumerator constructors:
+</p>
+<ul>
+    <li>_h(array) &rarr; wrapper - enumerates an array
+    <li>_h(enumerator_object) &rarr; wrapper - uses a custom enumerator (as in
+        the example above)
+    <li>_h.range(upper_bound) &rarr; wrapper - enumerates integers 0..upper_bound-1
+    <li>_h.range(first, upper_bound) &rarr; wrapper - enumerates integers
+        first..upper_bound-1
+    <li>_h.repeat(array) &rarr; wrapper - loops infinitely over elements of array
+</ul>
+
+<h3>Enumerator wrapper methods</h3>
+<p>
+    Each of the above constructors will return the iterator wrapped in an object
+    providing chainable methods for iterating over the sequences, returning new
+    wrapped enumerators.  The wrapped enumerator is available as
+    <code>wrapper.__wrapped__</code>.
+</p>
+<ul>
+    <li>wrapper.take(n) &rarr; wrapper - take n first elements of the sequence
+    <li>wrapper.map(f) &rarr; wrapper - apply f(element) to each element of the
+        sequence.  Returns a wrapped enumerator over processed elements.
+    <li>wrapper.reduce(f, initial) &rarr; value of f(seq[N],
+        f(seq[N-1], &hellip;, f(seq[0], initial)&hellip;))
+    <li>wrapper.filter(predicate) &rarr; wrapper - returns a wrapped enumerator
+        over elements for which predicate(element) is true.
+    <li>wrapper.each(f) - applies f to each of elements of the sequence.
+    <li>wrapper.toArray() &rarr; Array - collects all elements of the sequence
+        and returns a concrete array.  Keep in mind that it will run indefinitely
+        for an infinite sequence.
+</ul>
+
+horizontal.js by Paweł Stiasny
+
+<script type="text/javascript" charset="utf-8">
+    var samples = document.querySelectorAll('.sample.runnable');
+    _h(samples).each(function(el) {
+        var code = el.querySelector('code pre').innerHTML;
+        el.innerHTML +=  '<pre class="result">' + JSON.stringify(eval(code)) + '</pre>';
+    });
+</script>
+
