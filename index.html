@@ -24,6 +24,14 @@ ul {
     margin: 1em auto;
 }
 
+table {
+    margin: 1em auto;
+}
+
+table td {
+    padding: 0 3em;
+}
+
 .sample {
     text-align: left;
     margin: 1em auto;
@@ -63,7 +71,7 @@ ul {
     <a href="https://github.com/pstiasny/horizontal.js">Get it on Github</a>
 </p>
 
-<h3>Examples</h3>
+<h3 id="examples">Examples</h3>
     <div class="sample runnable">
 <code><pre>var x = [];
 _h(['foo', 'bar', 'baz'])
@@ -87,7 +95,7 @@ x</pre></code>
 <code><pre>_h.repeat([1, 2, 3]).take(10).toArray()</pre></code>
     </div>
 
-<h3>Enumerators</h3>
+<h3 id="enumrs">Enumerators</h3>
 <p>
     An enumerator is an object having <code>next</code> and <code>hasMore</code>
     methods.  You can define your own:
@@ -112,7 +120,7 @@ _h({
     <li>_h.repeat(array) &rarr; wrapper - loops infinitely over elements of array
 </ul>
 
-<h3>Enumerator wrapper methods</h3>
+<h3 id="methods">Enumerator wrapper methods</h3>
 <p>
     Each of the above constructors will return the iterator wrapped in an object
     providing chainable methods for iterating over the sequences, returning new
@@ -132,6 +140,55 @@ _h({
         and returns a concrete array.  Keep in mind that it will run indefinitely
         for an infinite sequence.
 </ul>
+
+<h3 id="perf">Performance</h3>
+<p>
+    In some cases, especially for large datasets, enumerator chaining may perform
+    better than creating intermediate arrays.  Consider the following example
+    that sums odd numbers in the range 1..30000001:
+</p>
+<p>
+<div class="sample runnable"><code><pre>
+require('./horizontal.js');
+var _u = require('./underscore.js');
+
+a = [];
+for (i = 0; i < 30000000; i++)
+    a.push(i);
+
+var v = _u(a).chain()
+    .map(function(x) { return x + 1; })
+    .filter(function(x) { return x & 1; })
+    .reduce(function(ac, x) { return ac + x; }, 0).value();
+console.log(v);
+</pre></code></div>
+<p>
+    Running the above example in node.js, compared with a version using
+    horizontal.js (<code>_u(a).chain()</code> swapped with <code>_h(a)</code>) 
+    and an explicit loop yields the following average results: </p>
+<table>
+    <tr>
+        <th></th>
+        <th>Time (s)</th>
+        <th>Max. resident set (KiB)</th>
+    </tr>
+    <tr>
+        <th>Underscore.js</th>
+        <td>13.35</td>
+        <td>9.652e+05</td>
+    </tr>
+    <tr>
+        <th>horizontal.js</th>
+        <td>6.13</td>
+        <td>5.6411e+05</td>
+    </tr>
+    <tr>
+        <th>explicit loop</th>
+        <td>4.14</td>
+        <td>5.642e+05</td>
+    </tr>
+</table>
+
 
 horizontal.js by Paweł Stiasny
 
